@@ -21,7 +21,6 @@ Functions require a function app to host function execution. This can be done in
      - Storage account: Create a globally unique name for the storage account that will be used by your function app, or use an existing account.
 3. Click Create.
 
-# C# 
 # Create an HTTP Triggered Function
 Now that the function app has been created, a function can be added to it. The template for an HTTP triggered function will execute when sent an HTTP request.
 
@@ -117,6 +116,7 @@ private static async Task SetupTwitterClient()
     _twitterCtx = new TwitterContext(authorizer);
 }
 ```
+8. Save the file.
 
 # Implement and Configure Function - JavaScript
 The JavaScript implementation will use a npm package named twitter to interact with the Twitter api. This requires accessing the function console through the portal to install the package and package.json file.
@@ -177,7 +177,7 @@ module.exports = function(context, req) {
   }
 };
 ```
-Save the file.
+7. Save the file.
 
 # Create Twitter App
 1. Navigate to https://apps.twitter.com/ and create a new Twitter app by clicking the button on the top right of the page and filling out the form. The website is a required field, but not needed for the app so you may add a placeholder site. Click on the button at the end of the form to create the app.
