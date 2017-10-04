@@ -54,6 +54,7 @@ We will be using a NuGet package called linqtotwitter to call interact with the 
 Save the file.
 
 4. Navigate to run.csx and remove the existing code from lines 5 to 20, leaving only the initial `Run` method and the `using` statement.
+
 5. Add the following code above `Run`:
 ```
 using System.Net;
@@ -64,6 +65,74 @@ private static TwitterContext _twitterCtx = null;
 private static IDictionary<string, string> _messageMap;
 ```
 
+6. Add the following code inside the `Run` method:
+
+```
+    if (_twitterCtx == null)
+    {
+        await SetupTwitterClient();
+    }
+
+    if (_messageMap.TryGetValue(messageType, out string message))
+    {
+        try
+        {
+            Status status = await _twitterCtx.TweetAsync("Testing a demo " + message);
+            return req.CreateResponse(HttpStatusCode.OK);
+        }
+        catch (TwitterQueryException ex) {
+            return req.CreateResponse(HttpStatusCode.InternalServerError);
+        }
+    }
+
+    return req.CreateResponse(HttpStatusCode.BadRequest, "Invalid message");
+```
+7. Add the following method below the `Run` method to authenticate an associated Twitter account.:
+
+```
+private static async Task SetupTwitterClient()
+{
+    SingleUserAuthorizer authorizer = new SingleUserAuthorizer
+    {
+        CredentialStore = new SingleUserInMemoryCredentialStore
+        {
+            ConsumerKey = Environment.GetEnvironmentVariable("TwitterAppKey", EnvironmentVariableTarget.Process),
+            ConsumerSecret = Environment.GetEnvironmentVariable("TwitterAppSecret", EnvironmentVariableTarget.Process),
+            AccessToken = Environment.GetEnvironmentVariable("TwitterAccessToken", EnvironmentVariableTarget.Process),
+            AccessTokenSecret = Environment.GetEnvironmentVariable("TwitterAccessTokenSecret", EnvironmentVariableTarget.Process)
+        }
+    };
+    await authorizer.AuthorizeAsync();
+
+    _messageMap = new Dictionary<string, string>
+    {
+        ["arrived"] = "Arrived at #ServerlessConf NYC. Trying out this #AzureFunctions demo cool",
+        ["joinme"] = "You should join me at the Microsoft booth at #Serverlessconf NYC",
+        ["azurefunctions"] = "Azure Functions is awesome!"
+    };
+
+    _twitterCtx = new TwitterContext(authorizer);
+}
+```
+
+# Create Twitter App
+1. Navigate to https://apps.twitter.com/ and create a new Twitter app by clicking the button on the top right of the page and filling out the form. The website is a required field, but not needed for the app so you may add a placeholder site. Click on the button at the end of the form to create the app.
+
+2. In the app's details, navigate to the Keys and Access Tokens tab and click on the button in the Token Actions section to create an access token.
+
+3. You will need the Consumer Key, Consumer Secret, Access Token, and Access Token Secret for the next step, keep this page open to copy these values into to your function configuration.
+
+# Configure Function Keys
+1. In the portal, navigate to the function app that hosts the recently created function.
+2. In the function app overview tab, click on Application settings.
+3. Scroll down to the Application settings section, click on the "+ Add new setting" button and add the keys from the Twitter app page as name and value pairs:
+  - TwitterAppKey: Consumer Key
+  - TwitterAppKeySecret: Consumer Secret
+  - TwitterAccessToken: Access Token
+  - TwitterAccessTokenSecret: Access Token Secret
+
+# Configure Flic
+1. In the Flic App
 
 # Node
 
